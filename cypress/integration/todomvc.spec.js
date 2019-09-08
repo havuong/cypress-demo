@@ -1,20 +1,29 @@
 /// <reference types="cypress" />
 // This triple comment line will tell VS Code for which package it needs autocomplete support for.
+import { TodoPage } from "../page-objects/todoPage";
+
 describe('todo actions', () => {
+    const todoPage = new TodoPage()
+    beforeEach(() => {
+        todoPage.navigate()
+        todoPage.addTodo('Clean room')
+    })
+
     it('should add a new todo to the list', () => {
-        cy.visit('http://todomvc-app-for-testing.surge.sh/')
-        cy.get('.new-todo', { timeout: 3000 }).type('Clean room{enter}')
-        cy.get('label').should('have.text', 'Clean room')
-        cy.get('.toggle').should('not.be.checked')
+        todoPage.validateTodoText(0, 'Clean room')
+        todoPage.validateToggleState(0, false)
     })
 
-    it('should mark a todo as completed', () => {
-        cy.get('.toggle').click()
-        cy.get('label').should('have.css', 'text-decoration-line', 'line-through')
-    })
+    describe('toggling todos', () => {
+        it('should toggle test correctly', () => {
+            todoPage.toggleTodo(0)
+            todoPage.validateTodoCompletedState(0, true)
+        })
 
-    it('should clear completed', () => {
-        cy.contains('Clear completed').click()
-        cy.get('.todo-list').should('not.have.descendants', 'li')
+        it('should clear completed', () => {
+            todoPage.toggleTodo(0)
+            todoPage.clearCompleted()
+            todoPage.validateNumberOfTodosShown(0)
+        })
     })
 })
